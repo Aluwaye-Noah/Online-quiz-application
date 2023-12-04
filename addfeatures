@@ -1,0 +1,97 @@
+// Add the following imports to the existing using directives
+using System;
+using System.Windows.Forms;
+
+namespace QuizApplication
+{
+    public partial class QuizForm : Form
+    {
+        // ... (existing fields and methods)
+
+        private Timer questionTimer;
+        private int timeLimitInSeconds = 30; // Example time limit for each question
+        private bool hintsUsed = false;
+
+        public QuizForm(Quiz quiz)
+        {
+            InitializeComponent();
+            this.quiz = quiz;
+            InitializeTimer();
+            DisplayQuestion();
+        }
+
+        private void InitializeTimer()
+        {
+            questionTimer = new Timer();
+            questionTimer.Interval = 1000; // Timer ticks every second
+            questionTimer.Tick += QuestionTimer_Tick;
+        }
+
+        private void DisplayQuestion()
+        {
+            // Your existing DisplayQuestion() method implementation...
+
+            StartTimer(); // Add this line to start the timer when displaying a question
+        }
+
+        private void StartTimer()
+        {
+            questionTimer.Start();
+        }
+
+        private void ResetTimer()
+        {
+            timeLimitInSeconds = 30;
+            questionTimer.Stop();
+        }
+
+        private void QuestionTimer_Tick(object sender, EventArgs e)
+        {
+            if (timeLimitInSeconds == 0)
+            {
+                questionTimer.Stop();
+                HandleTimeout();
+            }
+            else
+            {
+                timeLimitInSeconds--;
+            }
+        }
+
+        private void HandleTimeout()
+        {
+            MessageBox.Show("Time's up!");
+            ProceedToNextQuestion();
+        }
+
+        private void buttonConfirm_Click(object sender, EventArgs e)
+        {
+            // Your existing buttonConfirm_Click() method implementation...
+
+            ProceedToNextQuestion();
+        }
+
+        private void ProceedToNextQuestion()
+        {
+            // Your existing ProceedToNextQuestion() method implementation...
+
+            // Add this line to reset the timer when moving to the next question
+            ResetTimer();
+        }
+
+        private void buttonHint_Click(object sender, EventArgs e)
+        {
+            if (!hintsUsed)
+            {
+                // Retrieve and display a hint for the current question
+                // For example: MessageBox.Show(quiz.Questions[currentQuestionIndex].Hint);
+                hintsUsed = true;
+            }
+            else
+            {
+                MessageBox.Show("No more hints available!");
+            }
+        }
+    }
+}
+

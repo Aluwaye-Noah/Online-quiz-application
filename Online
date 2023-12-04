@@ -22,21 +22,21 @@ namespace QuizApplication
             generalKnowledgeQuiz.AddQuestion(
                 "Who is the Current Queen of England?",
                 new string[] { "Me", "You", "Your Nan" },
-                "Late Queen Elizabet"
+                "Late Queen Elizabeth"
             );
             generalKnowledgeQuiz.AddQuestion(
-                "Wgen did the WW2 end?",
-                new string[] { "2002", "1945", "right noow" },
-                "1800"
+                "When did WW2 end?",
+                new string[] { "2002", "1945", "right now" },
+                "1945"
             );
             generalKnowledgeQuiz.AddQuestion(
-                "Who is Clint419?"
-                new string[] {"A dealer", "A fashion disinger", "Head of a cartel"},
+                "Who is Clint419?",
+                new string[] { "A dealer", "A fashion designer", "Head of a cartel" },
                 "Him"
             );
             generalKnowledgeQuiz.AddQuestion(
-                "Who is WAYE and what is he famous for?"
-                news string[] {"A fashion designer", "A well known brandmowner and a fashion designer"},
+                "Who is WAYE and what is he famous for?",
+                new string[] { "A fashion designer", "A well-known brand owner and a fashion designer" },
                 "One of the greats"
             );
 
@@ -89,6 +89,7 @@ namespace QuizApplication
         public string Text { get; }
         public string[] Options { get; }
         public string CorrectAnswer { get; }
+        // Add a hint property here if needed
 
         public Question(string text, string[] options, string correctAnswer)
         {
@@ -103,16 +104,28 @@ namespace QuizApplication
         private Quiz quiz;
         private int currentQuestionIndex = 0;
         private int score = 0;
+        private Timer questionTimer;
+        private int timeLimitInSeconds = 30; // Example time limit for each question
+        private bool hintsUsed = false;
 
         public QuizForm(Quiz quiz)
         {
             InitializeComponent();
             this.quiz = quiz;
+            InitializeTimer();
             DisplayQuestion();
+        }
+
+        private void InitializeTimer()
+        {
+            questionTimer = new Timer();
+            questionTimer.Interval = 1000; // Timer ticks every second
+            questionTimer.Tick += QuestionTimer_Tick;
         }
 
         private void DisplayQuestion()
         {
+            ResetTimer();
             Question question = quiz.Questions[currentQuestionIndex];
             labelQuestion.Text = question.Text;
 
@@ -121,13 +134,37 @@ namespace QuizApplication
             radioButtonOption3.Text = question.Options[2];
 
             ClearOptions();
+            StartTimer(); // Start the timer for the current question
         }
 
-        private void ClearOptions()
+        private void StartTimer()
         {
-            radioButtonOption1.Checked = false;
-            radioButtonOption2.Checked = false;
-            radioButtonOption3.Checked = false;
+            questionTimer.Start();
+        }
+
+        private void ResetTimer()
+        {
+            timeLimitInSeconds = 30;
+            questionTimer.Stop();
+        }
+
+        private void QuestionTimer_Tick(object sender, EventArgs e)
+        {
+            if (timeLimitInSeconds == 0)
+            {
+                questionTimer.Stop();
+                HandleTimeout();
+            }
+            else
+            {
+                timeLimitInSeconds--;
+            }
+        }
+
+        private void HandleTimeout()
+        {
+            MessageBox.Show("Time's up!");
+            ProceedToNextQuestion();
         }
 
         private void buttonConfirm_Click(object sender, EventArgs e)
@@ -140,6 +177,11 @@ namespace QuizApplication
                 score++;
             }
 
+            ProceedToNextQuestion();
+        }
+
+        private void ProceedToNextQuestion()
+        {
             currentQuestionIndex++;
             if (currentQuestionIndex < quiz.Questions.Count)
             {
@@ -147,9 +189,36 @@ namespace QuizApplication
             }
             else
             {
-                double percentage = (double)score / quiz.Questions.Count * 100;
-                MessageBox.Show($"Quiz completed!\nScore: {score}/{quiz.Questions.Count} = {percentage}%");
-                Close();
+                ShowResult();
+            }
+        }
+
+        private void ShowResult()
+        {
+            double percentage = (double)score / quiz.Questions.Count * 100;
+            MessageBox.Show($"Quiz completed!\nScore: {score}/{quiz.Questions.Count} = {percentage}%");
+            Close();
+        }
+
+        private void ClearOptions()
+        {
+            radioButtonOption1.Checked = false;
+            radioButtonOption2.Checked = false;
+            radioButtonOption3.Checked = false;
+        }
+
+        private void buttonHint_Click(object sender, EventArgs e)
+        {
+            if (!hintsUsed)
+            {
+                // Retrieve and display a hint for the current question
+                // For example: MessageBox.Show(quiz.Questions[currentQuestionIndex].Hint);
+                hintsUsed = true;
+            }
+            else
+            {
+                MessageBox.Show("No more hints available!");
             }
         }
     }
+}
